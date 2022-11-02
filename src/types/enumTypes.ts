@@ -24,13 +24,16 @@ export enum CMS_STATUS_TYPE {
     BLOCK = 'BLOCK',
 }
 
+export enum SORT_TYPE {
+    DESC = "DESC",
+    ASC = "ASC"
+}
+
 // post 
 export enum POST_TYPE {
     NORMAL = 'NORMAL',
     POLL = 'POLL',
     EVENT = 'EVENT',
-    WALL = 'WALL',
-    SHARE = 'SHARE',
 }
 
 export enum POST_VISIBLE_TYPE {
@@ -41,8 +44,14 @@ export enum POST_VISIBLE_TYPE {
 
 export enum POST_TARGET_EMTITY_TYPE {
     USER = 'user',
-    POST = 'post',
+    GROUP = 'group',
     PAGE = 'page',
 }
 
+
+// group
+export enum GROUP_VISIBLE_TYPE {
+    PUBLIC = 'PUBLIC',
+    PRIVATE = 'PRIVATE',
+}
 

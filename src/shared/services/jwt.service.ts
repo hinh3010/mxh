@@ -39,6 +39,7 @@ const verifyAccessToken = async (req: any, res: Response, next: NextFunction) =>
             return next(createError.Unauthorized(err.message))
         }
         req.payload = payload
+
         next()
     })
 }

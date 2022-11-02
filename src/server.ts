@@ -22,8 +22,9 @@ class Server extends ConfigServer {
         this.app.use(
             cors({
                 origin: true,
-                methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+                methods: "GET,PATCH,POST,DELETE",
                 credentials: true,
+                // allowedHeaders: "Origin, Accept, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization, refresh_token"
             })
         );
 

@@ -15,6 +15,13 @@ npm install multer @types/multer --save
 npm install multer-s3 @types/multer-s3 --save
 npm install aws-sdk --save
 
+```ts
+@JoinColumn({ name: 'role_id' }) 
+roleId: string;
+
+@OneToMany(() => UserRoleEnitity, role => role.id)
+role: UserRoleEnitity;
+```
 # populate in typeorm
 ```ts
 

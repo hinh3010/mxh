@@ -82,7 +82,8 @@ export class UserService extends BaseService<UserEntity> {
     async findUserById(id: string): Promise<UserEntity | null> {
         return (await this.execRepository)
             .createQueryBuilder(Table.user)
-            .leftJoinAndSelect("user.userInfoId", Table.userInfo,)
+            .leftJoinAndSelect("user.userInfoId", Table.userInfo)
+            // .leftJoinAndSelect("user.posts", Table.post)
             .where({ id })
             .getOne();
     }

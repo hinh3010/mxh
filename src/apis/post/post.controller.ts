@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import createError from 'http-errors';
 import { HttpResponse } from "../../shared/http.response";
+import { POST_TARGET_EMTITY_TYPE } from "../../types/enumTypes";
 import catchAsync from "../../utils/catchAsync";
 import checkEmpty from "../../utils/checkEmpty";
-import { PostEntity } from './post.entity';
+import { UserEntity } from "../user/user.entity";
+import { UserService } from "../user/user.service";
+import { CreatePostPayload, UpdatePostPayload } from "./post.interface";
 import { PostService } from "./post.service";
 
 
@@ -11,43 +14,52 @@ import { PostService } from "./post.service";
 export class PostController {
 
     constructor(
-        private readonly userService: PostService = new PostService(),
+        private readonly userService: UserService = new UserService(),
+        private readonly service: PostService = new PostService(),
         private readonly httpResponse: HttpResponse = new HttpResponse(),
     ) { }
 
 
     getPosts = catchAsync(async (req: Request, res: Response) => {
-        const { page, limit, name, email, phone, gender, loginType, role, isActive }: any = req.query
+        const { page, limit, postVisible, cmsStatus, postType, targetEntity }: any = req.query
 
-        const searchBy = { name, email, phone, gender, loginType, role, isActive }
+        const searchBy = { postVisible, cmsStatus, postType, targetEntity }
 
-        const data = await this.userService.findAllPost({ page, limit }, checkEmpty.removeFieldEmptyInObj(searchBy))
+        const data = await this.service.findAllPost({ page, limit }, checkEmpty.removeFieldEmptyInObj(searchBy))
         return this.httpResponse.Ok(res, data)
     })
 
     getPostsByTargetId = catchAsync(async (req: Request, res: Response) => {
-        const { page, limit, name, email, phone, gender, loginType, role, isActive }: any = req.query
+        const { page, limit }: any = req.query
 
-        const searchBy = { name, email, phone, gender, loginType, role, isActive }
+        if (!req.body.targetEntity)
+            req.body.targetEntity = POST_TARGET_EMTITY_TYPE.USER
 
-        const data = await this.userService.findAllPost({ page, limit }, checkEmpty.removeFieldEmptyInObj(searchBy))
+        const searchBy = { ...req.body }
+
+        const data = await this.service.findAllPostByTargetId({ page, limit }, checkEmpty.removeFieldEmptyInObj(searchBy))
+
         return this.httpResponse.Ok(res, data)
     })
 
     createPost = catchAsync(async (req: Request, res: Response) => {
 
-        console.log({ adu: req.user })
-        const { page, limit, name, email, phone, gender, loginType, role, isActive }: any = req.query
+        const { id: createdById } = req.user as UserEntity
+        const payload: CreatePostPayload = req.body
 
-        const searchBy = { name, email, phone, gender, loginType, role, isActive }
+        if (payload.targetEntity === POST_TARGET_EMTITY_TYPE.USER || !payload.targetEntity) {
+            payload.targetEntity = POST_TARGET_EMTITY_TYPE.USER
+            payload.targetId = createdById
+        }
+        payload.createdById = createdById
 
-        const data = await this.userService.findAllPost({ page, limit }, checkEmpty.removeFieldEmptyInObj(searchBy))
+        const data = await this.service.createPost(payload)
         return this.httpResponse.Ok(res, data)
     })
 
     getPostById = catchAsync(async (req: Request, res: Response) => {
         const { id } = req.params;
-        const data = await this.userService.findPostById(id)
+        const data = await this.service.findPostById(id)
         if (!data)
             return this.httpResponse.NotFound(res, "Post not found")
         return this.httpResponse.Ok(res, data)
@@ -56,33 +68,38 @@ export class PostController {
     updatePostById = catchAsync(async (req: Request, res: Response) => {
 
         const { id } = req.params;
-        const senderId = req.user as PostEntity
+        const { id: createdById } = req.user as UserEntity
 
-        if (checkEmpty.obj(req.body)) throw createError.BadRequest()
-        if (req.body.password) delete req.body.password
-        const payload: any = req.body
+        // if (checkEmpty.obj(req.body)) throw createError.BadRequest()
+        // if (req.body.targetEntity) delete req.body.targetEntity
+        const payload: UpdatePostPayload = req.body
 
-
-        const isExist = await this.userService.findById(id)
+        const isExist = await this.service.findPostById(id)
         if (!isExist) throw createError.NotFound('Post not found');
 
-        const isUpdated = await this.userService.updatePostById(id, payload)
+        if (isExist.createdBy?.id !== createdById)
+            throw createError.Unauthorized("Permission denied")
+
+        const isUpdated = await this.service.updatePostById(id, payload)
         if (!isUpdated)
             throw createError.InternalServerError('An unknown error occurred');
 
-        const data = await this.userService.findPostById(id)
+        const data = await this.service.findPostById(id)
         return this.httpResponse.Ok(res, data)
     })
 
     deletePostById = catchAsync(async (req: Request, res: Response) => {
 
         const { id } = req.params;
-        const senderId = req.user as PostEntity
 
-        const isExist = await this.userService.findById(id)
+        const isExist = await this.service.findPostById(id)
         if (!isExist) throw createError.NotFound('Post not found');
 
-        const isDeleted = await this.userService.deletePostById(id)
+        const { id: createdById } = req.user as UserEntity
+        if (isExist.createdBy?.id !== createdById)
+            throw createError.Unauthorized("Permission denied")
+
+        const isDeleted = await this.service.deletePostById(id)
         if (!isDeleted)
             throw createError.InternalServerError('An unknown error occurred');
 

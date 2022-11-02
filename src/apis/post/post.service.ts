@@ -2,59 +2,60 @@ import {
     IPaginationOptions, paginate,
     Pagination
 } from 'nestjs-typeorm-paginate';
-import { Like } from "typeorm";
 import { BaseService } from "../../shared/services/base.service";
 import { Table } from "../../types/tableTypes";
 import { PostEntity } from "./post.entity";
-import { UpdatePostPayload } from "./post.interface";
+import { UpdatePostPayload } from './post.interface';
 
 export class PostService extends BaseService<PostEntity> {
     constructor() {
         super(PostEntity);
     }
 
-    // find
-    async findById(id: string): Promise<PostEntity | null> {
-        return (await this.execRepository).findOneBy({ id });
+    // create
+    async createPost(payload: any): Promise<PostEntity> {
+        return (await this.execRepository).save(payload)
     }
+
+    // find
+    // async findById(id: string): Promise<PostEntity | null> {
+    //     return (await this.execRepository).findOne({
+    //         where: { id }, relations: [
+    //             "createdBy",
+    //         ]
+    //     });
+    // }
 
 
     async findAllPost(options: IPaginationOptions, searchBy: any): Promise<Pagination<PostEntity>> {
 
-        let searchIncludes = []
-
-        if (searchBy.name) {
-            searchIncludes.push({ firstName: Like(`%${searchBy.name}%`) })
-            searchIncludes.push({ lastName: Like(`%${searchBy.name}%`) })
-        }
-        delete searchBy.name
-
-        if (searchBy.email) {
-            searchIncludes.push({ email: Like(`%${searchBy.email}%`) })
-        }
-        delete searchBy.email
-
-        if (searchBy.phone) {
-            searchIncludes.push({ phone: Like(`%${searchBy.phone}%`) })
-        }
-        delete searchBy.phone
-
         const queryBuilder = await (await this.execRepository)
-            .createQueryBuilder(Table.user)
-            // sort by 
-            .orderBy('user.created_at', 'ASC')
-            // search includes 
-            .where(searchIncludes)
-            // searct matches
-            .andWhere(searchBy)
+            .createQueryBuilder(Table.post)
+            .leftJoinAndSelect("post.createdBy", Table.user)
+            // .leftJoinAndSelect("post.tags", Table.user)
+            .where(searchBy)
 
         return paginate<PostEntity>(queryBuilder, options);
     }
 
+    async findAllPostByTargetId(options: IPaginationOptions, searchBy: any): Promise<Pagination<PostEntity>> {
+
+        const queryBuilder = await (await this.execRepository)
+            .createQueryBuilder(Table.post)
+            .leftJoinAndSelect("post.createdBy", Table.user)
+            // .leftJoinAndSelect("post.tags", Table.user)
+            .orderBy('post.createdAt', "DESC")
+            .where(searchBy)
+
+        return paginate<PostEntity>(queryBuilder, options);
+    }
+
+
     async findPostById(id: string): Promise<PostEntity | null> {
         return (await this.execRepository)
-            .createQueryBuilder(Table.user)
-            .leftJoinAndSelect("user.userInfoId", Table.userInfo,)
+            .createQueryBuilder(Table.post)
+            .leftJoinAndSelect("post.createdBy", Table.user)
+            // .leftJoinAndSelect("post.tags", Table.user)
             .where({ id })
             .getOne();
     }
@@ -65,14 +66,6 @@ export class PostService extends BaseService<PostEntity> {
         const isUpdated = (await this.execRepository).update(id, infoUpdate)
         return Boolean((await isUpdated).affected)
     }
-
-
-
-
-
-
-
-
 
     async deletePostById(id: string): Promise<boolean> {
         const isDeleted = (await this.execRepository).delete({ id })
