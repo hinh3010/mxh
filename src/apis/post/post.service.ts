@@ -12,11 +12,6 @@ export class PostService extends BaseService<PostEntity> {
         super(PostEntity);
     }
 
-    // create
-    async createPost(payload: any): Promise<PostEntity> {
-        return (await this.execRepository).save(payload)
-    }
-
     // find
     // async findById(id: string): Promise<PostEntity | null> {
     //     return (await this.execRepository).findOne({
@@ -25,7 +20,6 @@ export class PostService extends BaseService<PostEntity> {
     //         ]
     //     });
     // }
-
 
     async findAllPost(options: IPaginationOptions, searchBy: any): Promise<Pagination<PostEntity>> {
 
@@ -62,6 +56,12 @@ export class PostService extends BaseService<PostEntity> {
 
 
     // khac
+
+    async createPost(payload: any): Promise<PostEntity> {
+        return (await this.execRepository).save(payload)
+    }
+
+
     async updatePostById(id: string, infoUpdate: UpdatePostPayload): Promise<boolean> {
         const isUpdated = (await this.execRepository).update(id, infoUpdate)
         return Boolean((await isUpdated).affected)

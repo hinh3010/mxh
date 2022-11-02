@@ -21,7 +21,7 @@ export class PostRouter extends BaseRouter<PostController> {
                 this.controller.getPosts
             )
 
-        this.router.route('/posts/targetId')
+        this.router.route('/posts/targetById')
             .get(
                 validate(postValidate.getAllPostByTargetId()),
                 this.controller.getPostsByTargetId

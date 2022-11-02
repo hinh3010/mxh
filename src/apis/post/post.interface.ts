@@ -9,8 +9,8 @@ export interface CreatePostPayload {
     postVisible?: POST_VISIBLE_TYPE
     targetEntity?: POST_TARGET_EMTITY_TYPE
 
-    targetId?: string
-    createdById?: string
+    targetById?: string
+    createdBy?: string
     tags?: string[]
 }
 

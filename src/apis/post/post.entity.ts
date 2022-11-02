@@ -1,9 +1,13 @@
 import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { BaseEntity } from "../../shared/base.entity";
+import { BaseService } from "../../shared/services/base.service";
 import { CMS_STATUS_TYPE, POST_TARGET_EMTITY_TYPE, POST_TYPE, POST_VISIBLE_TYPE } from "../../types/enumTypes";
 import { Table } from "../../types/tableTypes";
 import { UserEntity } from "../user/user.entity";
+import { UserService } from "../user/user.service";
 
+
+const userService = new UserService()
 @Entity({ name: Table.post })
 export class PostEntity extends BaseEntity {
 
@@ -32,43 +36,7 @@ export class PostEntity extends BaseEntity {
     targetEntity!: POST_TARGET_EMTITY_TYPE
 
     @Column()
-    targetId!: string
-
-
-    // ko chay dc
-    // @Column({ type: 'enum', enum: POST_TARGET_EMTITY_TYPE, default: POST_TARGET_EMTITY_TYPE.USER })
-    // targetEntity!: POST_TARGET_EMTITY_TYPE
-    // targetBy!: any
-    // targetById!: string 
-    // @AfterInsert()
-    // async setTargetBy() {
-    //     if (this.targetEntity === POST_TARGET_EMTITY_TYPE.USER) {
-    //         this.targetBy = UserEntity
-    //     } else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.GROUP) {
-    //         this.targetBy = GroupEntity
-    //     } else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.PAGE) {
-    //         this.targetBy = PageEntity
-    //     }
-    //     this.targetById = this.targetBy.id
-    // }
-    //
-    // targetBy!: typeof Entity
-    // targetById!: string
-    // @AfterInsert()
-    // public async setTargetBy() {
-    //     if (this.targetEntity === POST_TARGET_EMTITY_TYPE.USER) {
-    //         const baseService = new BaseService(UserEntity)
-    //         this.targetBy = await (await baseService.execRepository).findOneBy({ id: this.targetById })
-    //     } else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.GROUP) {
-    //         this.targetBy = GroupEntity
-    //     } else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.PAGE) {
-    //         this.targetBy = PageEntity
-    //     }
-    // }
-
-    // @ManyToMany(() => UserEntity, user => user.taggeds)
-    // @JoinColumn()
-    // tags!: UserEntity[]
+    targetById!: string
 
     @Column("text", { array: true, default: [] })
     tags!: string[]

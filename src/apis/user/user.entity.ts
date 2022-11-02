@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, RelationId } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { BaseEntity } from "../../shared/base.entity";
 import { GENDER_TYPE, LOGIN_TYPE, ROLE_TYPE } from "../../types/enumTypes";
 import { Table } from "../../types/tableTypes";
@@ -67,10 +67,6 @@ export class UserEntity extends BaseEntity {
     @OneToMany(() => PostEntity, (post) => post.createdById)
     @JoinColumn({ name: "post_id" })
     posts!: PostEntity[];
-
-    // @ManyToMany(() => PostEntity, (post) => post.tags)
-    // @JoinColumn()
-    // taggeds!: PostEntity[];
 
     @OneToMany(() => PageEntity, (page) => page.createdBy)
     @JoinColumn({ name: "page_id" })

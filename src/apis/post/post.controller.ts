@@ -49,9 +49,9 @@ export class PostController {
 
         if (payload.targetEntity === POST_TARGET_EMTITY_TYPE.USER || !payload.targetEntity) {
             payload.targetEntity = POST_TARGET_EMTITY_TYPE.USER
-            payload.targetId = createdById
+            payload.targetById = createdById
         }
-        payload.createdById = createdById
+        payload.createdBy = createdById
 
         const data = await this.service.createPost(payload)
         return this.httpResponse.Ok(res, data)

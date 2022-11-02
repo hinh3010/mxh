@@ -74,7 +74,7 @@ export class PostValidate {
                 tags: Joi.array(),
                 links: Joi.array(),
 
-                targetId: Joi.string().trim().required(),
+                targetById: Joi.string().trim().required(),
 
 
                 postType: Joi.string().valid(...Object.values(POST_TYPE)),
