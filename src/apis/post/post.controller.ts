@@ -4,6 +4,8 @@ import { HttpResponse } from "../../shared/http.response";
 import { POST_TARGET_EMTITY_TYPE } from "../../types/enumTypes";
 import catchAsync from "../../utils/catchAsync";
 import checkEmpty from "../../utils/checkEmpty";
+import { GroupService } from "../group/group.service";
+import { PageService } from "../page/page.service";
 import { UserEntity } from "../user/user.entity";
 import { UserService } from "../user/user.service";
 import { CreatePostPayload, UpdatePostPayload } from "./post.interface";
@@ -15,6 +17,8 @@ export class PostController {
 
     constructor(
         private readonly userService: UserService = new UserService(),
+        private readonly groupService: GroupService = new GroupService(),
+        private readonly pageService: PageService = new PageService(),
         private readonly service: PostService = new PostService(),
         private readonly httpResponse: HttpResponse = new HttpResponse(),
     ) { }
@@ -60,9 +64,23 @@ export class PostController {
     getPostById = catchAsync(async (req: Request, res: Response) => {
         const { id } = req.params;
         const data = await this.service.findPostById(id)
+
         if (!data)
             return this.httpResponse.NotFound(res, "Post not found")
-        return this.httpResponse.Ok(res, data)
+
+        let targetBy
+        if (data?.targetById) {
+            if (data.targetEntity === POST_TARGET_EMTITY_TYPE.USER)
+                targetBy = await this.userService.findById(data?.targetById)
+            else if (data.targetEntity === POST_TARGET_EMTITY_TYPE.PAGE)
+                targetBy = await this.pageService.findById(data?.targetById)
+            else if (data.targetEntity === POST_TARGET_EMTITY_TYPE.GROUP)
+                targetBy = await this.groupService.findById(data?.targetById)
+        }
+
+        return this.httpResponse.Ok(res, {
+            ...data, targetBy
+        })
     })
 
     updatePostById = catchAsync(async (req: Request, res: Response) => {

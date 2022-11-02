@@ -1,13 +1,10 @@
 import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { BaseEntity } from "../../shared/base.entity";
-import { BaseService } from "../../shared/services/base.service";
 import { CMS_STATUS_TYPE, POST_TARGET_EMTITY_TYPE, POST_TYPE, POST_VISIBLE_TYPE } from "../../types/enumTypes";
 import { Table } from "../../types/tableTypes";
 import { UserEntity } from "../user/user.entity";
-import { UserService } from "../user/user.service";
 
 
-const userService = new UserService()
 @Entity({ name: Table.post })
 export class PostEntity extends BaseEntity {
 
@@ -37,6 +34,22 @@ export class PostEntity extends BaseEntity {
 
     @Column()
     targetById!: string
+
+
+    // ko chay dc
+    // targetBy!: any
+    // @AfterLoad()
+    // public async setTargetBy() {
+    //     if (this.targetEntity === POST_TARGET_EMTITY_TYPE.USER) {
+    //         // this.targetBy = await userService.findById(this.targetById)
+    //         console.log(this.targetById)
+    //     }
+    //     //  else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.GROUP) {
+    //     //     this.targetBy = GroupEntity
+    //     // } else if (this.targetEntity === POST_TARGET_EMTITY_TYPE.PAGE) {
+    //     //     this.targetBy = PageEntity
+    //     // }
+    // }
 
     @Column("text", { array: true, default: [] })
     tags!: string[]

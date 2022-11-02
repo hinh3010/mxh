@@ -7,6 +7,8 @@ import { Table } from "../../types/tableTypes";
 import { PostEntity } from "./post.entity";
 import { UpdatePostPayload } from './post.interface';
 
+
+
 export class PostService extends BaseService<PostEntity> {
     constructor() {
         super(PostEntity);
